@@ -1,19 +1,3 @@
-// A - rock
-// B - paper
-// C - scissors
-
-// X - rock
-// Y - paper
-// Z - scissors
-
-// 0 - lost
-// 3 - draw
-// 6 - won
-
-// 1 - rock
-// 2 - paper
-// 3 - scissors
-
 const fs = require('fs')
 const {join} = require('path')
 

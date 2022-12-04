@@ -13,7 +13,7 @@ inventory.forEach((entry) => {
   const firstHalf = entry.substr(0, entry.length / 2);
   const secondHalf = entry.substr(entry.length / 2);
 
-  const inBoth = Array.from(new Set([...firstHalf, ...secondHalf])).filter(item => firstHalf.includes(item) && secondHalf.includes(item))[0]
+  const inBoth = entry.split('').filter(item => firstHalf.includes(item) && secondHalf.includes(item))[0]
 
   const charCode = inBoth.charCodeAt(0)
   if (charCode >= 97) {
