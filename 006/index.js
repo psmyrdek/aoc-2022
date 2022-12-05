@@ -15,7 +15,9 @@ for (let i = 0; i < inventory.length; i += 3) {
 const sum = triads
   .map(
     (group) =>
-      Array.from(new Set(group[0])).filter((char) => group[1].includes(char) && group[2].includes(char))[0]
+      Array.from(new Set(group[0])).filter(
+        (char) => group[1].includes(char) && group[2].includes(char)
+      )[0]
   )
   .reduce((acc, next) => {
     const charCode = next.charCodeAt(0);
