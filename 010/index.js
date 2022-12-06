@@ -38,9 +38,11 @@ const moves = fs
 
 moves.forEach(({ count, from, to}) => {
 
+    let newArr = []
     for (let i = 0; i < count; i++) {
-        stacks[to].push(stacks[from].pop())
+      newArr = [stacks[from].pop(), ...newArr]
     }
+    stacks[to] = [...stacks[to], ...newArr]
 
 })
 
