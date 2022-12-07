@@ -1,23 +1,70 @@
 const fs = require('fs');
 const { join } = require('path');
 
+const RESULTS = {
+  LOST: 0,
+  DRAW: 3,
+  WON: 6,
+};
+
+const SCORE_FOR_CALL = {
+  ROCK: 1,
+  PAPER: 2,
+  SCISSORS: 3,
+};
+
+function normalize(opponent, mine) {
+  const OPPO_CALLS = {
+    A: 'ROCK',
+    B: 'PAPER',
+    C: 'SCISSORS',
+  };
+
+  const MINE_CALLS = {
+    X: 'ROCK',
+    Y: 'PAPER',
+    Z: 'SCISSORS',
+  };
+
+  return [OPPO_CALLS[opponent], MINE_CALLS[mine]];
+}
+
+function getScore(opponent, mine) {
+  if (opponent === mine) {
+    return RESULTS.DRAW;
+  } else if (opponent === 'ROCK') {
+    if (mine === 'PAPER') {
+      return RESULTS.WON;
+    } else {
+      return RESULTS.LOST;
+    }
+  } else if (opponent === 'PAPER') {
+    if (mine === 'SCISSORS') {
+      return RESULTS.WON;
+    } else {
+      return RESULTS.LOST;
+    }
+  } else if (opponent === 'SCISSORS') {
+    if (mine === 'ROCK') {
+      return RESULTS.WON;
+    } else {
+      return RESULTS.LOST;
+    }
+  }
+}
+
 const file = fs.readFileSync(join(__dirname, './input.txt'), { encoding: 'utf-8' });
 
-const calories = file.split('\n');
+const rounds = file.split('\n');
 
-let groups = [];
-let group = 0;
+let score = 0;
 
-calories.forEach((entry) => {
-  const asCal = parseInt(entry);
-  if (entry) {
-    group += asCal;
-  } else {
-    groups.push(group);
-    group = 0;
-  }
+rounds.forEach((round) => {
+  const [opponent_raw, mine_raw] = round.split(' ');
+  const [opponent, mine] = normalize(opponent_raw, mine_raw);
+  const roundScore = getScore(opponent, mine);
+  const scoreForCall = SCORE_FOR_CALL[mine];
+  score += roundScore + scoreForCall;
 });
 
-const topThreeSum = groups.sort((a, b) => (a > b ? -1 : a < b ? 1 : 0));
-
-console.log(topThreeSum[0] + topThreeSum[1] + topThreeSum[2]);
+console.log(score);
