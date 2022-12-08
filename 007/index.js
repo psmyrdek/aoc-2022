@@ -103,12 +103,12 @@ filesTable.forEach((file, index) => {
   while (currDir.parent) {
     increase(currDir.parent, file.size)
     currDir = currDir.parent
-    if (currDir.parent === null) {
+    if (currDir.parent === null && currDir.name !== '/') {
       increase(currDir, file.size)
     }
   }
 })
 
-const val = Object.entries(dirSizes).filter(([key, val]) => val <= 100000 )//.reduce((acc, [key, val]) => acc + val, 0)
+const val = Object.entries(dirSizes).filter(([key, val]) => val <= 100000 ).reduce((acc, [key, val]) => acc + val, 0)
 
 console.log(val)
