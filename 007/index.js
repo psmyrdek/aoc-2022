@@ -49,22 +49,21 @@ function createFile(name, size, parent) {
 let filesystem = null;
 let ptr = null;
 
-const filesTable = []
+const filesTable = [];
 
 function updateFilesTable(file) {
-
-  let path = `${file.name}`
-  let fileParent = file.parent
+  let path = `${file.name}`;
+  let fileParent = file.parent;
 
   do {
-    path = `${fileParent.name}|${path}`
-    fileParent = fileParent.parent
-  } while(fileParent)
+    path = `${fileParent.name}|${path}`;
+    fileParent = fileParent.parent;
+  } while (fileParent);
 
   filesTable.push({
     path,
-    size: file.size
-  })
+    size: file.size,
+  });
 }
 
 for (let inputLine of input) {
@@ -101,29 +100,35 @@ for (let inputLine of input) {
   }
 }
 
-const dirSizes = {}
+const dirSizes = {};
 
-filesTable.forEach(tableEntry => {
-  const arr = tableEntry.path.split('|')
-  while(arr.length > 1) {
-    arr.pop()
-    const filePath = arr.join('|')
-    dirSizes[filePath] = dirSizes[filePath] ? dirSizes[filePath] + tableEntry.size : tableEntry.size
+filesTable.forEach((tableEntry) => {
+  const arr = tableEntry.path.split('|');
+  while (arr.length > 1) {
+    arr.pop();
+    const filePath = arr.join('|');
+    dirSizes[filePath] = dirSizes[filePath]
+      ? dirSizes[filePath] + tableEntry.size
+      : tableEntry.size;
   }
-})
+});
 
 //part 1
-const val = Object.entries(dirSizes).filter(([key, val]) => val <= 100000 ).reduce((acc, [key, val]) => acc + val, 0)
-console.log(`Sum of dirs larger than threshold: ${val}`)
+const val = Object.entries(dirSizes)
+  .filter(([key, val]) => val <= 100000)
+  .reduce((acc, [key, val]) => acc + val, 0);
+console.log(`Sum of dirs larger than threshold: ${val}`);
 
 //part 2
-const sorted = Object.entries(dirSizes).sort(([aKey, aVal], [bKey, bVal]) => bVal > aVal ? 1 : bVal < aVal ? -1 : 0)
+const sorted = Object.entries(dirSizes).sort(([aKey, aVal], [bKey, bVal]) =>
+  bVal > aVal ? 1 : bVal < aVal ? -1 : 0
+);
 
-const available = 70000000
-const threshold = 30000000
-const used = sorted[0][1]
+const available = 70000000;
+const threshold = 30000000;
+const used = sorted[0][1];
 
-const toDelete = threshold - (available - used)
+const toDelete = threshold - (available - used);
 
-const candidates = sorted.filter(val => val[1] > toDelete)
-console.log(`First dir size to remove to conduct update: ${candidates.pop()[1]}`)
+const candidates = sorted.filter((val) => val[1] > toDelete);
+console.log(`First dir size to remove to conduct update: ${candidates.pop()[1]}`);
