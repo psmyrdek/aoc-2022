@@ -7,7 +7,7 @@ const grid = fs
   })
   .split('\n');
 
-let visibleTrees = 0;
+// let visibleTrees = 0;
 
 // function visibleFromOneSide(height, row, col, grid) {
 
@@ -42,47 +42,46 @@ let visibleTrees = 0;
 // - part 2
 
 function viewInRow(height, row) {
-  let counter = 0
-  for (let i = 0; i < row.length; row++) {
+  let view = 0;
+  for (let i = 0; i < row.length; i++) {
     if (row[i] <= height) {
-      counter++
-    } else {
+      view++;
+    }
+    if (row[i] >= height) {
       break;
     }
   }
-  return counter
+  return view
 }
 
-function calcScenicScore(height, row, col, grid) {
+function calcScenicScore(height, rowIndex, colIndex, treeRow, grid) {
+  const treeCol = grid.map((gridLine) => parseInt(gridLine[colIndex]));
 
-    const treeRow = grid[row].split('')
-    const treeCol = grid.map((gridLine) => gridLine[col])
-  
-    const viewLeft = treeRow.filter((_, index) => index < col).reverse()
-    const fromLeft = viewInRow(height, viewLeft) || 1
+  const viewLeft = treeRow.filter((_, index) => index < colIndex).reverse();
+  const fromLeft = viewInRow(height, viewLeft);
 
-    const viewRight = treeRow.filter((_, index) => index > col)
-    const fromRight = viewInRow(height, viewRight) || 1
+  const viewRight = treeRow.filter((_, index) => index > colIndex);
+  const fromRight = viewInRow(height, viewRight);
 
-    const viewTop = treeCol.filter((_, index) => index < row).reverse()
-    const fromTop = viewInRow(height, viewTop) || 1
+  const viewTop = treeCol.filter((_, index) => index < rowIndex).reverse();
+  const fromTop = viewInRow(height, viewTop);
 
-    const viewBottom = treeCol.filter((_, index) => index > row)
-    const fromBottom = viewInRow(height, viewBottom) || 1
-  
-    return fromLeft * fromRight * fromTop * fromBottom;
-  }
+  const viewBottom = treeCol.filter((_, index) => index > rowIndex);
+  const fromBottom = viewInRow(height, viewBottom);
 
-let scenicScore = 0
+  return fromLeft * fromRight * fromTop * fromBottom;
+}
 
-grid.forEach((treesInRowString, row) => {
-  const treesInRow = treesInRowString.split('').map((val) => parseInt(val));
-  treesInRow.forEach((height, col) => {
-    const score = calcScenicScore(height, row, col, grid)
-    if (score > scenicScore) {
-      scenicScore = score
+let maxScore = 0;
+
+grid.forEach((line, rowIndex) => {
+  const treesInRow = line.split('').map((val) => parseInt(val));
+  treesInRow.forEach((height, colIndex) => {
+    const score = calcScenicScore(height, rowIndex, colIndex, treesInRow, grid);
+    if (score > maxScore) {
+      maxScore = score;
     }
   });
 });
 
-console.log(scenicScore);
+console.log(maxScore);
