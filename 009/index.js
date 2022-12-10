@@ -7,78 +7,93 @@ const moves = fs
   })
   .split('\n');
 
-let head = { x: 0, y: 0 };
-let tail = { x: 0, y: 0 };
+const knots = Array.from(new Array(10)).map(_ => ({ x: 0, y: 0 }))
 
 const tailMoves = {}
 
-function isTailAdjustmentNeeded(head, tail) {
-    return ![
-        { x: head.x, y: head.y },
-        { x: head.x - 1, y: head.y + 1 },
-        { x: head.x, y: head.y + 1 },
-        { x: head.x + 1, y: head.y + 1},
-        { x: head.x - 1, y: head.y },
-        { x: head.x + 1, y: head.y },
-        { x: head.x - 1, y: head.y - 1},
-        { x: head.x, y: head.y - 1},
-        { x: head.x + 1, y: head.y - 1}
-    ].some(coord => coord.x === tail.x && coord.y === tail.y )
+function generateOptions(tail) {
+    return [
+        { x: tail.x - 1, y: tail.y + 1 },
+        { x: tail.x, y: tail.y + 1 },
+        { x: tail.x + 1, y: tail.y + 1},
+        { x: tail.x - 1, y: tail.y },
+        { x: tail.x + 1, y: tail.y },
+        { x: tail.x - 1, y: tail.y - 1},
+        { x: tail.x, y: tail.y - 1},
+        { x: tail.x + 1, y: tail.y - 1}
+    ]
 }
 
-function updateTail(x, y) {
-    tail = { x, y }
+function isAdjustmentNeeded(next, prev) {
+    return ![
+        { x: next.x, y: next.y },
+        { x: next.x - 1, y: next.y + 1 },
+        { x: next.x, y: next.y + 1 },
+        { x: next.x + 1, y: next.y + 1},
+        { x: next.x - 1, y: next.y },
+        { x: next.x + 1, y: next.y },
+        { x: next.x - 1, y: next.y - 1},
+        { x: next.x, y: next.y - 1},
+        { x: next.x + 1, y: next.y - 1}
+    ].some(coord => coord.x === prev.x && coord.y === prev.y )
+}
 
-    const key = `${x}x${y}`
-    if (!tailMoves[key]) {
-        tailMoves[key] = 1
-    } else {
-        tailMoves[key]++;
+function updateKnotPosition(knot, x, y, knotIndex) {
+    knot.x = x
+    knot.y = y
+
+    if (knotIndex === 0) {
+        const key = `${x}x${y}`
+        if (!tailMoves[key]) {
+            tailMoves[key] = 1
+        } else {
+            tailMoves[key]++;
+        }
+    }
+}
+
+function getNextKnotPosition(knotMoved, knotToMove) {
+    const moveOptions = generateOptions(knotToMove)
+    const stickyKnots = moveOptions.filter(newTail => !isAdjustmentNeeded(knotMoved, newTail))
+    const nextTail = stickyKnots.length > 1 ? stickyKnots.filter(newTail => newTail.x === knotMoved.x || newTail.y === knotMoved.y) : stickyKnots
+
+    if (nextTail.length !== 1) {
+        throw new Error('Found too many options for next move')
     }
 
-    console.log(`${JSON.stringify(head)} ${JSON.stringify(tail)}`)
+    return nextTail[0]
 }
 
 for (let move of moves) {
   const [dir, steps] = move.split(' ');
 
-  console.log(move)
-
   for (let i = 0; i < parseInt(steps); i++) {
 
     switch(dir) {
         case 'R':
-            head.x += 1;
+            knots[9].x += 1;
             break;
         case 'L':
-            head.x -= 1;
+            knots[9].x -= 1;
             break;
         case 'U':
-            head.y += 1;
+            knots[9].y += 1;
             break;
         case 'D':
-            head.y -= 1;
+            knots[9].y -= 1;
             break;
     }
 
-    console.log(`${JSON.stringify(head)} ${JSON.stringify(tail)}`)
+    for (let i = 8; i >= 0; i--) {
 
-    if (isTailAdjustmentNeeded(head, tail)) {
-        console.log('Updating tail')
-        switch(dir) {
-            case 'R':
-                updateTail(head.x - 1, head.y)
-                break;
-            case 'L':
-                updateTail(head.x + 1, head.y)
-                break;
-            case 'U':
-                updateTail(head.x, head.y - 1)
-                break;
-            case 'D':
-                updateTail(head.x, head.y + 1)
-                break;
+        const knotMoved = knots[i + 1]
+        const knotToMove = knots[i]
+
+        if (isAdjustmentNeeded(knotMoved, knotToMove)) {
+            const nextTail = getNextKnotPosition(knotMoved, knotToMove)
+            updateKnotPosition(knotToMove, nextTail.x, nextTail.y, i)
         }
+
     }
 
   }
