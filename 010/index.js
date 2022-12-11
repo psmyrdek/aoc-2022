@@ -11,24 +11,21 @@ const instructions = fs
 let register = 1
 let cycle = 1
 let instruction = null
-let sum = 0
 
-function checkCycle() {
-  if ([20, 60, 100, 140, 180, 220].includes(cycle)) {
-    sum += cycle * register
-  }
-}
+const screen = []
 
 function nextTick() {
+
+  const sprite = [register - 1, register, register + 1]
+  screen.push(sprite.includes(cycle % 40) ? '#' : ' ')
+
   cycle += 1
-  checkCycle()
+
 }
 
 while (instruction = instructions.shift()) {
 
   if (instruction.startsWith('addx')) {
-    console.log(`addx - Cycle: ${cycle}`)
-    
     nextTick()
 
     const value = parseInt(instruction.split(' ')[1])
@@ -38,10 +35,18 @@ while (instruction = instructions.shift()) {
   }
 
   if (instruction === 'noop') {
-    console.log(`noop - Cycle: ${cycle}`)
     nextTick()
   }
 
 }
 
-console.log(sum)
+const screenLet = screen.join('')
+
+console.log('\n')
+console.log(screenLet.substring(0, 39))
+console.log(screenLet.substring(40, 79))
+console.log(screenLet.substring(80, 119))
+console.log(screenLet.substring(120, 159))
+console.log(screenLet.substring(160, 199))
+console.log(screenLet.substring(200, 239))
+console.log('\n')
