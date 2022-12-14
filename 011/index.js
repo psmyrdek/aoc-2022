@@ -9,7 +9,7 @@
 // const magicNum = 11 * 2 * 5 * 7 * 17 * 19 * 3 * 13
 //
 // (Big Number % magicNum) % singleModulo === bigNumber % singleModulo
-const magicNum = 9699690 
+const magicNum = 9699690 // LCM of all modulos
 
 const monkeys = {
   0: {
