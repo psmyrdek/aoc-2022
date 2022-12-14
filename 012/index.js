@@ -43,8 +43,16 @@ function getDistance(start, end) {
   return Math.abs(start.row - end.row) + Math.abs(start.col - end.col)
 }
 
-function canGo(start, newCoords) {
-  
+function canGo(from, to) {
+  const exists = theMap[to.row] != null && theMap[to.row][to.col] != null
+  if (!exists) {
+    return false;
+  }
+
+  const currVal = theMap[from.row][from.col]  
+  const nextVal = theMap[to.row][to.col]
+
+  return nextVal >= currVal && Math.abs(nextVal - currVal) <= 1
 }
 
 const moves = tryMoves(priority, start);
