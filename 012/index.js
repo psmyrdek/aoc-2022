@@ -1,63 +1,138 @@
 const fs = require('fs');
 const { join } = require('path');
-const { getNumericalMap, renderMap } = require('./map');
-const { getDirs } = require('./directions');
 
-const theMap = fs
-  .readFileSync(join(__dirname, './input.txt'), {
-    encoding: 'utf-8',
-  })
-  .split('\n')
-  .map((line) => line.split(''));
+function generateMap() {
+  return fs
+    .readFileSync(join(__dirname, './input.txt'), {
+      encoding: 'utf-8',
+    })
+    .split('\n')
+    .map((line) => line.split(''));
+}
 
-const start = { row: 20, col: 0 };
+function renderMap(theMap, openList, q) {
+  console.clear();
+  theMap.forEach((row, rowIndex) => {
+    const line = [];
+    row.forEach((col, colIndex) => {
+      const op = openList.find((n) => n.row === rowIndex && n.col === colIndex);
+      const qN = rowIndex === q.row && colIndex === q.col;
+
+      if (qN) {
+        line.push('.');
+      } else if (op) {
+        line.push('+');
+      } else {
+        line.push(theMap[rowIndex][colIndex]);
+      }
+    });
+    console.log(line.join(''));
+  });
+}
+
+const theMap = generateMap();
+
+const start = { row: 20, col: 0, f: 0, q: 0 };
 const finish = { row: 20, col: 107 };
 
-const priority = Math.abs(finish.col - start.col) > Math.abs(finish.row - start.row) ? 'H' : 'V';
+let openList = [start];
+let closedList = [];
 
-function tryMoves(priority, point) {
-  switch (priority) {
-    case 'H': {
-      return point.col < finish.col ? ['R', 'T', 'D', 'L'] : ['L', 'T', 'D', 'R'];
+const INF = 9999;
+
+function hFunc(node) {
+  const dist = Math.abs(finish.col - node.col) + Math.abs(finish.row - node.col);
+  return dist;
+}
+
+function nodeToHeight(node) {
+
+  if (node.row < 0 || node.col < 0) {
+    return INF
+  }
+
+  if (node.row > theMap.length - 1) {
+    return INF
+  }
+
+  if (node.col > theMap[node.row].length - 1) {
+    return INF
+  }
+
+  const letter = theMap[node.row][node.col]
+  const nodeChar = letter === 'S' ? 'a' : letter === 'E' ? 'z' : letter;
+  return nodeChar ? nodeChar.charCodeAt(0) - 97 : INF;
+}
+
+function generateSuccessors(node) {
+  const nodes = [
+    {
+      row: node.row - 1,
+      col: node.col,
+      q: node.q + 1,
+    },
+    {
+      row: node.row,
+      col: node.col - 1,
+      q: node.q + 1,
+    },
+    {
+      row: node.row,
+      col: node.col + 1,
+      q: node.q + 1,
+    },
+    {
+      row: node.row + 1,
+      col: node.col,
+      q: node.q + 1,
     }
-    case 'V': {
-      return point.row < finish.row ? ['D', 'L', 'R', 'T'] : ['T', 'L', 'R', 'D'];
+  ]
+  .filter(sNode => {
+    const h1 = nodeToHeight(node)
+    const h2 = nodeToHeight(sNode)
+
+    return h2 - 1 <= h1 
+  })
+  .map(sNode => ({ ...sNode, f: sNode.q + hFunc(node, sNode) }));
+
+  return nodes;
+}
+
+function findInCollection(collection, node, f) {
+  const itemsInRow = collection.filter((item) => item.row === node.row);
+  const tryCols = itemsInRow.filter((item) => item.col === node.col);
+  return tryCols.filter((item) => item.f < f).length > 0;
+}
+
+let counter = 1;
+while (openList.length > 0) {
+  const q = openList.sort((a, b) => a.f - b.f)[0];
+
+  openList = openList.filter((node) => !(node.row === q.row && node.col === q.col));
+
+  const successors = generateSuccessors(q);
+
+  successors.forEach((node) => {
+    if (node.row === finish.row && node.col === finish.col) {
+      // Finish
+      throw new Error(node.q);
     }
+
+    if (findInCollection(openList, node, node.f)) {
+      return;
+    }
+
+    if (findInCollection(closedList, node, node.f)) {
+      return;
+    }
+
+    openList.push(node);
+  });
+
+  closedList.push(q);
+
+  if (counter % 100 === 0) {
+    renderMap(theMap, openList, q);
   }
+  counter++;
 }
-
-function moveToCoord(move, point) {
-  switch (move) {
-    case 'L':
-      return { row: point.row, col: point.col - 1 };
-    case 'R':
-      return { row: point.row, col: point.col + 1 };
-    case 'T':
-      return { row: point.row + 1, col: point.col };
-    case 'D':
-      return { row: point.row - 1, col: point.col };
-  }
-}
-
-function getDistance(start, end) {
-  return Math.abs(start.row - end.row) + Math.abs(start.col - end.col)
-}
-
-function canGo(from, to) {
-  const exists = theMap[to.row] != null && theMap[to.row][to.col] != null
-  if (!exists) {
-    return false;
-  }
-
-  const currVal = theMap[from.row][from.col]  
-  const nextVal = theMap[to.row][to.col]
-
-  return nextVal >= currVal && Math.abs(nextVal - currVal) <= 1
-}
-
-const moves = tryMoves(priority, start);
-const nextPoints = moves
-  .map((move) => moveToCoord(move, start))
-  .map((newPoint) => getDistance(newPoint, finish));
-
-console.log(nextPoints)
