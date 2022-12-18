@@ -10,33 +10,7 @@ function generateMap() {
     .map((line) => line.split(''));
 }
 
-function renderMap(theMap, openList, q) {
-  console.clear();
-  theMap.forEach((row, rowIndex) => {
-    const line = [];
-    row.forEach((col, colIndex) => {
-      const op = openList.find((n) => n.row === rowIndex && n.col === colIndex);
-      const qN = rowIndex === q.row && colIndex === q.col;
-
-      if (qN) {
-        line.push('.');
-      } else if (op) {
-        line.push('+');
-      } else {
-        line.push(theMap[rowIndex][colIndex]);
-      }
-    });
-    console.log(line.join(''));
-  });
-}
-
 const theMap = generateMap();
-
-const start = { row: 20, col: 0, f: 0, q: 0 };
-const finish = { row: 20, col: 107 };
-
-let openList = [start];
-let closedList = [];
 
 const INF = 9999;
 
@@ -46,20 +20,19 @@ function hFunc(node) {
 }
 
 function nodeToHeight(node) {
-
   if (node.row < 0 || node.col < 0) {
-    return INF
+    return INF;
   }
 
   if (node.row > theMap.length - 1) {
-    return INF
+    return INF;
   }
 
   if (node.col > theMap[node.row].length - 1) {
-    return INF
+    return INF;
   }
 
-  const letter = theMap[node.row][node.col]
+  const letter = theMap[node.row][node.col];
   const nodeChar = letter === 'S' ? 'a' : letter === 'E' ? 'z' : letter;
   return nodeChar ? nodeChar.charCodeAt(0) - 97 : INF;
 }
@@ -85,15 +58,15 @@ function generateSuccessors(node) {
       row: node.row + 1,
       col: node.col,
       q: node.q + 1,
-    }
+    },
   ]
-  .filter(sNode => {
-    const h1 = nodeToHeight(node)
-    const h2 = nodeToHeight(sNode)
+    .filter((sNode) => {
+      const h1 = nodeToHeight(node);
+      const h2 = nodeToHeight(sNode);
 
-    return h2 - 1 <= h1 
-  })
-  .map(sNode => ({ ...sNode, f: sNode.q + hFunc(node, sNode) }));
+      return h2 - 1 <= h1;
+    })
+    .map((sNode) => ({ ...sNode, f: sNode.q + hFunc(node, sNode) }));
 
   return nodes;
 }
@@ -104,35 +77,70 @@ function findInCollection(collection, node, f) {
   return tryCols.filter((item) => item.f < f).length > 0;
 }
 
-let counter = 1;
-while (openList.length > 0) {
-  const q = openList.sort((a, b) => a.f - b.f)[0];
+function pathfinder(start, finish) {
+  let noOfSteps = 0;
+  let openList = [start];
+  let closedList = [];
 
-  openList = openList.filter((node) => !(node.row === q.row && node.col === q.col));
+  while (openList.length > 0) {
+    const q = openList.sort((a, b) => a.f - b.f)[0];
 
-  const successors = generateSuccessors(q);
+    openList = openList.filter((node) => !(node.row === q.row && node.col === q.col));
 
-  successors.forEach((node) => {
-    if (node.row === finish.row && node.col === finish.col) {
-      // Finish
-      throw new Error(node.q);
-    }
+    const successors = generateSuccessors(q);
 
-    if (findInCollection(openList, node, node.f)) {
-      return;
-    }
+    successors.forEach((node) => {
+      if (node.row === finish.row && node.col === finish.col) {
+        // Finish
+        console.log(`For ${start.row}x${start.col} its ${node.q} steps`)
+        noOfSteps = node.q;
+        openList = [];
+        return;
+      }
 
-    if (findInCollection(closedList, node, node.f)) {
-      return;
-    }
+      if (findInCollection(openList, node, node.f)) {
+        return;
+      }
 
-    openList.push(node);
-  });
+      if (findInCollection(closedList, node, node.f)) {
+        return;
+      }
 
-  closedList.push(q);
+      openList.push(node);
+    });
 
-  if (counter % 100 === 0) {
-    renderMap(theMap, openList, q);
+    closedList.push(q);
   }
-  counter++;
+
+  return noOfSteps;
 }
+
+//-------
+
+let startPoints = []
+
+for (let i = 0; i < theMap.length; i++) {
+  for (let j = 0; j < theMap[i].length; j++) {
+    if (theMap[i][j] === 'a') {
+      startPoints.push({ row: i, col: j, f: 0, q: 0})
+    }
+  }
+}
+
+const start = { row: 20, col: 0, f: 0, q: 0 };
+const finish = { row: 20, col: 107 };
+// const steps = []
+// for (let i = 0; i < startPoints.length; i++) {
+//   steps.push(new Promise(resolve => {
+//     resolve(pathfinder(startPoints[i], finish))
+//   }))
+// }
+
+
+// // const steps = startPoints.map(node => pathfinder(node, finish))
+
+// Promise.all(steps).then(steps => {
+//   console.log(steps.sort((a, b) => a - b))
+// })
+
+console.log(pathfinder(start, finish));
