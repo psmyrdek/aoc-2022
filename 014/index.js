@@ -102,37 +102,43 @@ function renderFrame(cave, sand) {
 
 function render(cave, delayMs, iter, sand = { row: 0, col: 500 }) {
   setTimeout(() => {
-    if (iter % 200 === 0) {
+    // if (iter % 100 === 0) {
       renderCave(cave, sand);
-      fs.writeFileSync('014/save.json', JSON.stringify({ iter, cave }), {encoding: 'utf-8'})
-    }
+      // fs.writeFileSync('014/save.json', JSON.stringify({ iter, cave }), {encoding: 'utf-8'})
+    // }
     try {
       renderFrame(cave, sand);
       render(cave, delayMs, iter, sand);
     } catch (e) {
-      // console.log(`Sand stopped at iter:${iter} and ${JSON.stringify(sand)}`);
+
+      console.log(`Iteration: ${iter}...`)
+
+      if (sand.row === 0 && sand.col === 500) {
+        throw new Error(`Sand stopped at iter:${iter} and ${JSON.stringify(sand)}`);
+      }
+
       iter += 1;
       render(cave, delayMs, iter);
     }
   }, delayMs);
 }
 
-const cave = createCave();
+const {cave, iter} = require('./save.json') //createCave();
 
-lines.forEach((line) => {
-  const coords = line.split(' -> ');
+// lines.forEach((line) => {
+//   const coords = line.split(' -> ');
 
-  for (let i = 0; i < coords.length - 1; i++) {
-    const [fromCol, fromRow] = coords[i].split(',');
-    const [toCol, toRow] = coords[i + 1].split(',');
+//   for (let i = 0; i < coords.length - 1; i++) {
+//     const [fromCol, fromRow] = coords[i].split(',');
+//     const [toCol, toRow] = coords[i + 1].split(',');
 
-    createCaveLine(parseInt(fromRow), parseInt(fromCol), parseInt(toRow), parseInt(toCol), cave);
-  }
+//     createCaveLine(parseInt(fromRow), parseInt(fromCol), parseInt(toRow), parseInt(toCol), cave);
+//   }
 
-  // coords.forEach((coord) => {
-  //   const [col, row] = coord.split(',');
-  //   cave[row][col] = '#';
-  // });
-});
+//   // coords.forEach((coord) => {
+//   //   const [col, row] = coord.split(',');
+//   //   cave[row][col] = '#';
+//   // });
+// });
 
-render(cave, 0, 1);
+render(cave, 0, iter);
