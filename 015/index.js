@@ -125,42 +125,6 @@ const UPP_BOUND = 4000000
 
 const blockedFields = {}
 
-function extendBounds(row, left, right) {
-
-    if (blockedFields[row].length === 0) {
-        blockedFields[row].push({left, right})
-        return;
-    }
-
-    if (blockedFields[row].length === 1) {
-
-        const curr = blockedFields[row][0]
-
-        if (right < curr.left || left > curr.right) {
-            console.log(`new item ${row}`)
-        }
-
-        if (left >= curr.left && right <= curr.right) {
-            //smaller than already added
-            return;
-        }
-
-        if (left < curr.left) {
-            curr.left = left
-        }
-
-        if (right > curr.right) {
-            curr.right = right
-        }
-
-    }
-
-    if (blockedFields[row].length > 1) {
-        console.log(`multiple ${row}`)
-    }
-
-}
-
 lines
   .map((line) => getSensorMetadata(line))
   .forEach((sensor, i) => {
