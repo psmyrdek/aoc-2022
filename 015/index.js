@@ -1,6 +1,8 @@
 const fs = require('fs');
 const { join } = require('path');
 
+console.time('Matrix search')
+
 const lines = fs
   .readFileSync(join(__dirname, './input.txt'), {
     encoding: 'utf-8',
@@ -197,6 +199,7 @@ lines
         }
         if (rowBound.right < bd.left) {
             console.log(blockedFields[row])
+            console.timeEnd('Matrix search')
             throw new Error(`row: ${row}, ${JSON.stringify(rowBound)} ${JSON.stringify(bd)}`);
         }
         rowBound.right = bd.right
@@ -204,3 +207,5 @@ lines
   }
   
   console.log('sorted')
+
+  
