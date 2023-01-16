@@ -117,16 +117,6 @@ function pathfinder(start, finish) {
 
 //-------
 
-let startPoints = []
-
-for (let i = 0; i < theMap.length; i++) {
-  for (let j = 0; j < theMap[i].length; j++) {
-    if (theMap[i][j] === 'a') {
-      startPoints.push({ row: i, col: j, f: 0, q: 0})
-    }
-  }
-}
-
 const start = { row: 20, col: 0, f: 0, q: 0 };
 const finish = { row: 20, col: 107 };
 
