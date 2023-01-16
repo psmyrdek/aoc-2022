@@ -14,7 +14,7 @@ const theMap = generateMap();
 
 const INF = 9999;
 
-function hFunc(node) {
+function calcDistanceLeft(node) {
   const dist = Math.abs(finish.col - node.col) + Math.abs(finish.row - node.col);
   return dist;
 }
@@ -66,7 +66,7 @@ function generateSuccessors(node) {
 
       return h2 - 1 <= h1;
     })
-    .map((sNode) => ({ ...sNode, f: sNode.q + hFunc(node, sNode) }));
+    .map((sNode) => ({ ...sNode, f: sNode.q + calcDistanceLeft(node, sNode) }));
 
   return nodes;
 }
