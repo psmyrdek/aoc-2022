@@ -129,18 +129,5 @@ for (let i = 0; i < theMap.length; i++) {
 
 const start = { row: 20, col: 0, f: 0, q: 0 };
 const finish = { row: 20, col: 107 };
-// const steps = []
-// for (let i = 0; i < startPoints.length; i++) {
-//   steps.push(new Promise(resolve => {
-//     resolve(pathfinder(startPoints[i], finish))
-//   }))
-// }
-
-
-// // const steps = startPoints.map(node => pathfinder(node, finish))
-
-// Promise.all(steps).then(steps => {
-//   console.log(steps.sort((a, b) => a - b))
-// })
 
 console.log(pathfinder(start, finish));
